@@ -2,23 +2,24 @@
   <h1>📝 To-Do List</h1>
 
   <div class="add-todo">
-    <input [(ngModel)]="newTodo" (keyup.enter)="addTodo()" placeholder="Ajouter une tâche..." />
+    <input [(ngModel)]="newTodo" placeholder="Ajouter une tâche..." (keyup.enter)="addTodo()" />
     <button (click)="addTodo()">➕ Ajouter</button>
   </div>
 
   <ul>
     <li *ngFor="let todo of todos">
-      <ng-container *ngIf="editMode && todoToEdit?.id === todo.id; else showTodo">
-        <input [(ngModel)]="todoToEdit.title" (keyup.enter)="saveTodo()" />
-      </ng-container>
+      <!-- Si la tâche est en mode édition, afficher un input -->
+      <input *ngIf="todoToEditId === todo.id" [(ngModel)]="editText" (keyup.enter)="saveEdit(todo.id)" />
 
-      <ng-template #showTodo>
-        <span [class.completed]="todo.completed" (click)="toggleTodo(todo.id)">
-          {{ todo.title }}
-        </span>
-        <button (click)="editTodo(todo)">✏️ Modifier</button>
-        <button (click)="deleteTodo(todo.id)">🗑️</button>
-      </ng-template>
+      <!-- Sinon, afficher le texte de la tâche -->
+      <span *ngIf="todoToEditId !== todo.id" [class.completed]="todo.completed" (click)="toggleTodo(todo.id)">
+        {{ todo.title }}
+      </span>
+
+      <!-- Bouton Modifier -->
+      <button *ngIf="todoToEditId !== todo.id" (click)="startEditing(todo)">✏️ Modifier</button>
+
+      <button (click)="deleteTodo(todo.id)">🗑️</button>
     </li>
   </ul>
 </div>

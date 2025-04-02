@@ -1,51 +1,62 @@
 import { Component } from '@angular/core';
-import { TodoService } from './services/todo.service';
-import { Todo } from './models/todo.model';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.css']
 })
-// AppComponent == Controller
 export class AppComponent {
-  todos: Todo[] = [];
-  newTodo = '';
-  editMode: boolean = false;
-  todoToEdit: any = null;
+  todos: any[] = [];
+  newTodo: string = '';
+  todoToEditId: number | null = null;
+  editText: string = '';
 
-  constructor(private todoService: TodoService) {
-    this.todoService.todos$.subscribe(todos => this.todos = todos);
+  constructor() {
+    // Charger les tâches depuis le localStorage au démarrage
+    const savedTodos = localStorage.getItem('todos');
+    if (savedTodos) {
+      this.todos = JSON.parse(savedTodos);
+    }
   }
 
   addTodo() {
     if (this.newTodo.trim()) {
-      this.todoService.addTodo(this.newTodo);
-      this.newTodo = '';
+      const newTask = { id: Date.now(), title: this.newTodo, completed: false };
+      this.todos.push(newTask);
+      this.saveTodosToLocalStorage();
+      this.newTodo = ''; // Réinitialiser l'input
+    }
+  }
+
+  startEditing(todo: any) {
+    this.todoToEditId = todo.id;
+    this.editText = todo.title;
+  }
+
+  saveEdit(todoId: number) {
+    const index = this.todos.findIndex(t => t.id === todoId);
+    if (index !== -1) {
+      this.todos[index].title = this.editText;
+      this.saveTodosToLocalStorage();
+      this.todoToEditId = null; // Quitter le mode édition
     }
   }
 
   toggleTodo(id: number) {
-    this.todoService.toggleTodo(id);
-  }
-
-
-  editTodo(todo: any) {
-    this.editMode = true;
-    this.todoToEdit = { ...todo };
-  }
-
-  saveTodo() {
-    const index = this.todos.findIndex(t => t.id === this.todoToEdit.id);
-    if (index !== -1) {
-      this.todos[index].title = this.todoToEdit.title;
+    const todo = this.todos.find(t => t.id === id);
+    if (todo) {
+      todo.completed = !todo.completed;
+      this.saveTodosToLocalStorage();
     }
-    this.editMode = false;
-    this.todoToEdit = null;
   }
-
 
   deleteTodo(id: number) {
-    this.todoService.deleteTodo(id);
+    this.todos = this.todos.filter(t => t.id !== id);
+    this.saveTodosToLocalStorage();
+  }
+
+  // Fonction pour sauvegarder les tâches dans le localStorage
+  saveTodosToLocalStorage() {
+    localStorage.setItem('todos', JSON.stringify(this.todos));
   }
 }
