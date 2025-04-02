@@ -2,7 +2,7 @@
   <h1>📝 To-Do List</h1>
 
   <div class="add-todo">
-    <input [(ngModel)]="newTodo" placeholder="Ajouter une tâche..." />
+    <input [(ngModel)]="newTodo" (keyup.enter)="addTodo()" placeholder="Ajouter une tâche..." />
     <button (click)="addTodo()">➕ Ajouter</button>
   </div>
 
