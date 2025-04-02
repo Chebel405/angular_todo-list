@@ -11,6 +11,8 @@ import { Todo } from './models/todo.model';
 export class AppComponent {
   todos: Todo[] = [];
   newTodo = '';
+  editMode: boolean = false;
+  todoToEdit: any = null;
 
   constructor(private todoService: TodoService) {
     this.todoService.todos$.subscribe(todos => this.todos = todos);
@@ -26,6 +28,22 @@ export class AppComponent {
   toggleTodo(id: number) {
     this.todoService.toggleTodo(id);
   }
+
+
+  editTodo(todo: any) {
+    this.editMode = true;
+    this.todoToEdit = { ...todo };
+  }
+
+  saveTodo() {
+    const index = this.todos.findIndex(t => t.id === this.todoToEdit.id);
+    if (index !== -1) {
+      this.todos[index].title = this.todoToEdit.title;
+    }
+    this.editMode = false;
+    this.todoToEdit = null;
+  }
+
 
   deleteTodo(id: number) {
     this.todoService.deleteTodo(id);

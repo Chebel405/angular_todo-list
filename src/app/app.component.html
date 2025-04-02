@@ -8,10 +8,17 @@
 
   <ul>
     <li *ngFor="let todo of todos">
-      <span [class.completed]="todo.completed" (click)="toggleTodo(todo.id)">
-        {{ todo.title }}
-      </span>
-      <button (click)="deleteTodo(todo.id)">🗑️</button>
+      <ng-container *ngIf="editMode && todoToEdit?.id === todo.id; else showTodo">
+        <input [(ngModel)]="todoToEdit.title" (keyup.enter)="saveTodo()" />
+      </ng-container>
+
+      <ng-template #showTodo>
+        <span [class.completed]="todo.completed" (click)="toggleTodo(todo.id)">
+          {{ todo.title }}
+        </span>
+        <button (click)="editTodo(todo)">✏️ Modifier</button>
+        <button (click)="deleteTodo(todo.id)">🗑️</button>
+      </ng-template>
     </li>
   </ul>
 </div>
